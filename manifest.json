@@ -15,7 +15,8 @@
         "<all_urls>"
       ],
       "js": [
-        "contentScripts.js"
+        "contentScripts.js",
+        "functionCalling.js"
       ]
     }
   ]

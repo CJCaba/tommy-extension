@@ -8,6 +8,7 @@ module.exports = {
     entry: {
         background: './src/chrome/background/index.ts',
         contentScripts: './src/chrome/contentScripts/index.ts',
+        functionCalling: "./src/chrome/functionCalling/index.ts",
         react: './src/react/index.tsx'
     },
     output: {
