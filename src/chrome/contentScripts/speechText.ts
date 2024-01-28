@@ -48,7 +48,7 @@ export function SpeechText() {
 
             //
             console.log("Captured after trigger:", finalTranscript);
-            recognition.stop()
+            finalTranscript = ''
             // Process the finalTranscript as needed
         }
     }, 500);

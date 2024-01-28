@@ -3,14 +3,14 @@ import styled from 'styled-components';
 import {callScript} from '../CallScript';
 import axios from 'axios'
 import {PageContext} from "./PageContext";
+import {FilteredDOM} from "../../chrome/contentScripts/filteredDOM";
 
 export default function PromptBox() {
-    const [message, setMessage] = useState('');
     const [name, setName] = useState('');
     const [accountID, setAccountID] = useState('');
     const [filteredDOM, setFilteredDOM] = useState([]);
+    const [messaging, setMessaging] = useState("");
     const [capturing, setCapturing] = useState(false);
-    const [prevCapturing, setPrevCapturing] = useState(false)
 
     const {isOpen} = useContext(PageContext);
 
@@ -23,8 +23,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionResponse', handleResponse);
         callScript('getDataFromStorage', {key: 'name'});
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
-    }, [name, accountID, isOpen]);
-
+    }, [isOpen, name]);
 
     useEffect(() => {
         const handleResponse = (event: any) => {
@@ -35,8 +34,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionResponse', handleResponse);
         callScript('getDataFromStorage', {key: 'accountID'});
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
-    }, [name, accountID, isOpen]);
-
+    }, [isOpen, accountID]);
 
     useEffect(() => {
         const handleSearchNodes = (event: any) => {
@@ -47,25 +45,24 @@ export default function PromptBox() {
         window.addEventListener('myExtensionSearchNodes', handleSearchNodes);
 
         return () => window.removeEventListener('myExtensionSearchNodes', handleSearchNodes);
-    }, [filteredDOM, isOpen]);
+    }, [isOpen, filteredDOM]);
 
     useEffect(() => {
         const handleSpeechData = (event: any) => {
             const {finalTranscript, capturing: newCapturing} = event.detail;
-
-            setMessage(newCapturing && !prevCapturing ? '' : finalTranscript);
-
-            if (newCapturing !== capturing) {
-                setPrevCapturing(capturing);
-                setCapturing(newCapturing);
-                sendRequestToOpenAI();
-            }
+            setCapturing(capturing);
+            setMessaging(finalTranscript);
         };
 
         window.addEventListener('myExtensionSpeechData', handleSpeechData);
-
         return () => window.removeEventListener('myExtensionSpeechData', handleSpeechData);
-    }, [prevCapturing, capturing, accountID, name]);
+    }, [isOpen, capturing, messaging]);
+
+    useEffect(() => {
+        if (messaging.length != 0) {
+            sendRequestToOpenAI();
+        }
+    }, [messaging])
 
     const sendRequestToOpenAI = () => {
         if (!accountID) {
@@ -73,15 +70,21 @@ export default function PromptBox() {
             return;
         }
 
+        if (!messaging) {
+            console.log("No Message for GPT");
+            return;
+        }
+
         const engineID = ""; // Replace with actual engine ID
 
         const data = {
             name: name,
-            message: message,
+            message: messaging,
             DOM: filteredDOM
         };
 
         console.log(data);
+        console.log(accountID);
 
         axios.post(`https://api.openai.com/v1/engines/${engineID}/completions`,
             {prompt: data, max_tokens: 150},
@@ -100,25 +103,25 @@ export default function PromptBox() {
             });
     };
 
-    return <PromptContainer capturing={capturing} value={message} onChange={(e) => setMessage(e.target.value)}/>
+    return <PromptContainer capturing={capturing} value={messaging} onChange={(e) => setMessaging(e.target.value)}/>
 }
 
 const PromptContainer = styled.textarea<{ capturing: boolean }>`
-    width: 80%;
-    border-radius: 10px;
-    flex: 0.45;
-    margin: 2rem;
-    background: ${props => props.theme.primary};
-    color: ${props => props.theme.accent};
-    overflow: auto;
-    resize: none;
-    text-overflow: ellipsis;
-    padding: 10px;
-    border: none;
-    line-height: 1.5;
+  width: 80%;
+  border-radius: 10px;
+  flex: 0.45;
+  margin: 2rem;
+  background: ${props => props.theme.primary};
+  color: ${props => props.theme.accent};
+  overflow: auto;
+  resize: none;
+  text-overflow: ellipsis;
+  padding: 10px;
+  border: none;
+  line-height: 1.5;
 
-    box-shadow: ${props => props.capturing ? '0px 0px 20px 5px rgba(0, 0, 0, 0.4)' : '0px 0px 10px 1px rgba(0, 0, 0, 0.2)'};
-    transition: box-shadow 0.3s ease-in-out;
+  box-shadow: ${props => props.capturing ? '0px 0px 20px 5px rgba(0, 0, 0, 0.4)' : '0px 0px 10px 1px rgba(0, 0, 0, 0.2)'};
+  transition: box-shadow 0.3s ease-in-out;
 `;
 
 
