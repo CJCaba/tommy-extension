@@ -5,7 +5,7 @@ import React, {useState} from 'react';
 import Homepage from "./components/Homepage";
 import Settings from "./components/Settings";
 import {UserInfoContext} from './components/UserInfoContext';
-import { PageContext } from './components/PageContext';
+import {PageContext} from './components/PageContext';
 
 // Theme
 const theme = {
@@ -28,10 +28,16 @@ export default function App() {
         setCurrentPage(page);
     };
 
+    const runFilteredDOM = () => {
+        chrome.runtime.sendMessage({action: "filterDOM"}, (response) => {
+        });
+    }
+
     return <AppContainer>
         <ThemeProvider theme={theme}>
             <UserInfoContext.Provider value={{name, accountID, message, setName, setAccountID, setMessage}}>
                 <PageContext.Provider value={{currentPage, changePage, setOpen, isOpen}}>
+                    <button onClick={runFilteredDOM}>click me to run FilteredDOM Method</button>
                     {isOpen && (currentPage === 'home' ? <Homepage/> : <Settings/>)}
                 </PageContext.Provider>
             </UserInfoContext.Provider>
@@ -42,6 +48,6 @@ export default function App() {
 
 // DOM Element CSS Is Located in Chrome/ContentScripts/Embed.js
 const AppContainer = styled.div`
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 `

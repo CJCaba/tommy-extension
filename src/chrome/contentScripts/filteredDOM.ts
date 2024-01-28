@@ -24,6 +24,7 @@ class Tommy_Node {
 }
 
 export function FilteredDOM() {
+    console.log("Filtered DOM has been fired!sss")
 
     // Get the root node of the DOM
     const node = document.documentElement;
