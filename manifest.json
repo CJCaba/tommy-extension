@@ -7,7 +7,8 @@
     "activeTab",
     "tabs",
     "<all_urls>",
-    "storage"
+    "storage",
+    "microphone"
   ],
   "host_permissions": [
     "<all_urls>"

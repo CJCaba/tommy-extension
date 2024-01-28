@@ -30,7 +30,7 @@ export default function App() {
     };
 
     const handleClick = () => {
-        callScript("filterDOM", {});
+        callScript("speechText", {});
     };
 
 

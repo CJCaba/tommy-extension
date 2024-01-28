@@ -1,3 +1,5 @@
 node_modules
 TIMES.txt
 dist
+package-lock.json
+package.json

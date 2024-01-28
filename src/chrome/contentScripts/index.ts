@@ -1,7 +1,8 @@
 import {clickOnElement} from './ClickOnElement';
 import {CloseCurrentTab, OpenTab} from './TabControls';
 import {embedReactApp} from './embedReactApp';
-import {FilteredDOM} from './filteredDOM'
+import {FilteredDOM} from './filteredDOM';
+import {SpeechText} from  './speechText';
 
 window.addEventListener('myExtensionEvent', (e: any) => {
     chrome.runtime.sendMessage({
@@ -25,6 +26,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
         case "filterDOM":
             FilteredDOM();
+            break;
+        case "speechText":
+            SpeechText();
             break;
         default:
             break;
