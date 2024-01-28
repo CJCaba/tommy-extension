@@ -61,7 +61,8 @@ const OpenButton = styled.div`
     right: 1rem;
     width: 50px;
     height: 50px;
-    background: white;
+    background: black;
+    border: white;
     border-radius: 50%;
     z-index: 10000001;
     pointer-events: auto;

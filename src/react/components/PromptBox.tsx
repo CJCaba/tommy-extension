@@ -74,12 +74,12 @@ export default function PromptBox() {
             return;
         }
 
-        const engineID = ""; // Replace with actual engine ID
-
         const data = {
-            name: name,
-            prompt: messaging,
-            DOM: filteredDOM
+            prompt: {
+                name: name,
+                message: messaging,
+                DOM: filteredDOM
+            }
         };
 
         const assistantID = "asst_FFgL6XWJvkusRlqwVpAruk7K";
