@@ -4,7 +4,7 @@
  */
 export function clickOnElement(selector: string): void {
     // Find the element using the selector
-    const element = document.querySelector(selector);
+    const element = document.querySelector(`[data-tommy-key="${selector}"]`);
 
     // Check if the element exists
     if (element) {

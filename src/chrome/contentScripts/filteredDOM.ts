@@ -21,8 +21,20 @@ class Tommy_Node {
         this.key = key;
         this.parent = parent;
     }
-   
+
 }
+
+function GenerateRandomString() {
+    length = 16
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
 
 export function FilteredDOM() {
 
@@ -33,14 +45,15 @@ export function FilteredDOM() {
 
     function traverseDOM(node: Node, parent: Tommy_Node): void{
         // Node is the current DOM node of the file
-    
+
         // First check to determine whether the node is a proper element node
         if (node.nodeType === Node.ELEMENT_NODE) {
             const element = node as HTMLElement;
-        
+
             // Then check to see if the nodeName is one of the important tags to mark down
             if (TAGS.includes(element.nodeName)) {
-                const new_node = new Tommy_Node(element, element.textContent as string, "random_string", parent);
+                let key = GenerateRandomString()
+                const new_node = new Tommy_Node(element, element.textContent as string, key, parent);
                 parent = new_node;
                 element.setAttribute(TV, "random_string");
                 SEARCH_NODES.push(new_node);
@@ -55,4 +68,3 @@ export function FilteredDOM() {
 
     traverseDOM(node[0], root);
 }
-

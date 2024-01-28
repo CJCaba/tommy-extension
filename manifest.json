@@ -7,6 +7,8 @@
     "default_popup": "index.html"
   },
   "background": {
+    "scripts": ["background.js"],
+    "persistent": true,
     "service_worker": "background.js"
   },
   "content_scripts": [
@@ -19,5 +21,9 @@
         "functionCalling.js"
       ]
     }
+  ],
+  "permissions": [
+    "tabs","<all_urls>",
+    "activeTab"
   ]
 }

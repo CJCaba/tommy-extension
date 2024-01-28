@@ -1,45 +1,31 @@
-import styled, {ThemeProvider} from 'styled-components';
-import React, {useState, useContext} from 'react';
-import Homepage from "./components/Homepage";
-import Settings from "./components/Settings";
+import {CloseCurrentTab} from "../chrome/functionCalling/TabControls";
 
-const theme = {
-    primary: "",
-    secondary: "",
+export default function App() {
+    const handleClick = () => {
+        // Example of passing additional arguments
+        callScript("addDogImage", {size: '150px', position: 'bottom-right'});
+    };
+
+    const CloseCurrentTab = () =>{
+      //testing opening a tab
+        console.log("Close Tab Called")
+        callScript("CloseCurrentTab", {url:"https://www.youtube.com"})
+    };
+
+    return <main>
+        <h1>Add a Dog Gif to Webpage</h1>
+        <button onClick={() => handleClick()}>Generate Dog Gif</button>
+        <button onClick={()=> CloseCurrentTab()}>close current Tab</button>
+    </main>
 };
 
 
-const PageContext = React.createContext({});
-
-export default function App() {
-    const [currentPage, setCurrentPage] = useState('home'); // Initialize with 'home' as the default page
-
-    const changePage = () => {
-        setCurrentPage(currentPage == "home" ? "settings" : "home");
-    };
-
-    return <AppContainer>
-        <ThemeProvider theme={theme}>
-            <PageContext.Provider value={{currentPage, changePage}}>
-                <main>
-                    {currentPage === 'home' ? <Homepage/> : <Settings/>}
-                </main>
-            </PageContext.Provider>
-        </ThemeProvider>
-    </AppContainer>
-}
-
-/**
- * This Calls Content Scripts (Javascript) on the backend
- * @param action The Keyword located in the index.ts of the chrome directories, these are the name of the functions to run
- * @param args The Parameters the function needs to execute
- */
 export const callScript = (action: any, args = {}) => {
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
         chrome.tabs.sendMessage(tabs[0].id as number, {action, ...args});
     });
 };
 
-const AppContainer = styled.div`
-
-`
+// Lets Add a Function Calling Directory And Test with calling DOG Image.
+// Maybe try a wrapper appraoch for each function when calling ContentScripts?
+// So Instead of Querying and Sending a Message Here It can do it in the script?

@@ -1,13 +1,4 @@
-import {addDogImageToScreen} from "./AddDogImageToScreen";
-import {clickOnElement} from "./ClickOnElement";
+export * from './ClickOnElement';
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    switch (request.action) {
-        case "addDogImage":
-            addDogImageToScreen(request.size, request.position);
-            break;
-        case "clickElement":
-            clickOnElement(request.selector);
-            break;
-    }
-});
+// Example Case For Testing
+export * from './AddDogImageToScreen';
