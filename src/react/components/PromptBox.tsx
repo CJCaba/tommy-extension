@@ -13,54 +13,41 @@ export default function PromptBox() {
     const [capturing, setCapturing] = useState(false);
     const [prevCapturing, setPrevCapturing] = useState(false);
 
-    // Retrieve Name and AccountID from Storage
+    // Retrieve Name from Storage
     useEffect(() => {
-        const handleResponse = (event: any) => {
+        const handleNameResponse = (event: any) => {
             const {detail} = event;
-            if (detail.action === 'getDataFromStorage') {
-                if (detail.key === 'name' && detail.status === 'success') {
-                    setName(detail.value || '');
-                } else if (detail.key === 'accountID' && detail.status === 'success') {
-                    setAccountID(detail.value || '');
-                }
+            if (detail.action === 'getDataFromStorage' && detail.key === 'name' && detail.status === 'success') {
+                setName(detail.value || '');
             }
         };
 
-        window.addEventListener('myExtensionResponse', handleResponse);
-
-        // Fetching both name and accountID
+        window.addEventListener('myExtensionResponse', handleNameResponse);
         callScript('getDataFromStorage', {key: 'name'});
-        callScript('getDataFromStorage', {key: 'accountID'});
 
         return () => {
-            window.removeEventListener('myExtensionResponse', handleResponse);
+            window.removeEventListener('myExtensionResponse', handleNameResponse);
         };
     }, []);
 
-    // Event Listener for Transcript/Audio Data
+    // Retrieve AccountID from Storage
     useEffect(() => {
-        const handleSpeechData = (event: any) => {
-            const {finalTranscript, capturing} = event.detail;
-
-            if (capturing && !prevCapturing) {
-                // Reset message when transitioning from not capturing to capturing
-                setMessage('');
-            } else {
-                setMessage(finalTranscript);
+        const handleAccountIDResponse = (event: any) => {
+            const {detail} = event;
+            if (detail.action === 'getDataFromStorage' && detail.key === 'accountID' && detail.status === 'success') {
+                setAccountID(detail.value || '');
             }
-
-            setPrevCapturing(capturing); // Update the previous capturing state
-            setCapturing(capturing); // Update the capturing state
         };
 
-        window.addEventListener('myExtensionSpeechData', handleSpeechData);
+        window.addEventListener('myExtensionResponse', handleAccountIDResponse);
+        callScript('getDataFromStorage', {key: 'accountID'});
 
         return () => {
-            window.removeEventListener('myExtensionSpeechData', handleSpeechData);
+            window.removeEventListener('myExtensionResponse', handleAccountIDResponse);
         };
-    }, [prevCapturing]);
+    }, []);
 
-    // Get Filtered DOM
+    // Get Filtered DOM from Algorithm
     useEffect(() => {
         const handleSearchNodes = (event: any) => {
             const {searchNodes} = event.detail;
@@ -73,6 +60,30 @@ export default function PromptBox() {
             window.removeEventListener('myExtensionSearchNodes', handleSearchNodes);
         };
     }, []);
+
+    // Event Listener for Audio & Calling API
+    useEffect(() => {
+        const handleSpeechData = (event: any) => {
+            const {finalTranscript, capturing} = event.detail;
+
+            if (capturing && !prevCapturing) {
+                setMessage('');
+            } else {
+                setMessage(finalTranscript);
+                sendRequestToOpenAI(); // Call OPENAI
+                console.log(accountID, name)
+            }
+
+            setPrevCapturing(capturing); // Update the previous capturing state
+            setCapturing(capturing); // Update the capturing state
+        };
+
+        window.addEventListener('myExtensionSpeechData', handleSpeechData);
+
+        return () => {
+            window.removeEventListener('myExtensionSpeechData', handleSpeechData);
+        };
+    }, [prevCapturing, capturing]);
 
     // Sends Request to OpenAI
     const sendRequestToOpenAI = () => {
@@ -115,20 +126,6 @@ export default function PromptBox() {
                 console.error("Error sending request to OpenAI:", error);
             });
     };
-
-    useEffect(() => {
-        // Check the transition from capturing (true) to not capturing (false)
-        if (!capturing && prevCapturing) {
-            sendRequestToOpenAI();
-        }
-
-        // Update the previous capturing state in the next render cycle
-        // This ensures that the check for capturing state change is evaluated first
-        const timeoutId = setTimeout(() => setPrevCapturing(capturing), 0);
-
-        return () => clearTimeout(timeoutId);
-    }, [capturing]); // Remove prevCapturing from dependencies
-
 
     return <PromptContainer capturing={capturing} value={message} onChange={(e) => setMessage(e.target.value)}/>
 }
