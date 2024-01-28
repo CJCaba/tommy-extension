@@ -1,54 +1,61 @@
+
 export function SpeechText() {
-    console.log("Start Speech Sequence...")
+    var recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "us_en";
 
-    const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-    const SpeechGrammarList =
-        window.SpeechGrammarList || window.webkitSpeechGrammarList;
-    const SpeechRecognitionEvent =
-        window.SpeechRecognitionEvent || window.webkitSpeechRecognitionEvent;
+    let capturing = false;
+    let finalTranscript = '';
+    let lastTimestamp = 0;
 
-    const recognition = new SpeechRecognition();
+    recognition.onresult = (event) => {
+        let interimTranscript = '';
 
-    // Controls whether continuous results are captured (true), 
-    //or just a single result each time recognition is started (false)
-    recognition.continuous = false;
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+                finalTranscript.toLowerCase();
+            } else {
+                interimTranscript += event.results[i][0].transcript;
+                interimTranscript.toLowerCase();
+            }
+        }
+        const triggerPhrases = ["hi Tom", "hey Tom", "hey Tommy", "hi Tommy"];
+            const foundTrigger = triggerPhrases.some(phrase => interimTranscript.includes(phrase));
+        console.log(foundTrigger)
+        // Check for the trigger phrase in the latest transcript.
+        if (foundTrigger && !capturing) {
+            capturing = true;
+            finalTranscript = ''; // Reset the final transcript for new capture
+            console.log(foundTrigger);
+        }
 
-    // Sets the language of the recognition.
-    recognition.lang = "en-US";
+        if (capturing) {
+            // Update the last timestamp when speech was detected
+            lastTimestamp = Date.now();
+        }
+    };
 
-    // Defines whether the speech recognition system should return interim results, or just final results. 
-    //Final results are good enough for this simple demo.
-    recognition.interimResults = false;
+// Check every half second to see if there's been a 2-second pause
+    setInterval(() => {
+        if (capturing && (Date.now() - lastTimestamp) > 1000) {
+            capturing = false;
+            //recognition.stop(); // Or handle the captured text as needed
 
-    // Sets the number of alternative potential matches that should be returned per result.
-    recognition.maxAlternatives = 1;
+            //we need to return the string but still have the funciton running
 
-    // Start obtaining input
+            //
+            console.log("Captured after trigger:", finalTranscript);
+            recognition.stop()
+            // Process the finalTranscript as needed
+        }
+    }, 500);
+
+    recognition.onerror = (event) => {
+        console.error("Speech recognition error", event.error);
+    };
+
     recognition.start();
 
-    recognition.onresult = function (event) {
-        // The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
-        // The SpeechRecognitionResultList object contains SpeechRecognitionResult objects.
-        // It has a getter so it can be accessed like an array
-        // The first [0] returns the SpeechRecognitionResult at the last position.
-        // Each SpeechRecognitionResult object contains SpeechRecognitionAlternative objects that contain individual results.
-        // These also have getters so they can be accessed like arrays.
-        // The second [0] returns the SpeechRecognitionAlternative at position 0.
-        // We then return the transcript property of the SpeechRecognitionAlternative object
-        var text = event.results[0][0].transcript;
-        console.log(text);
-    }
-
-    recognition.onspeechend = function () {
-        recognition.stop();
-    }
-
-    recognition.onnomatch = function (event) {
-
-    }
-
-    recognition.onerror = function (event) {
-
-    }
 }
