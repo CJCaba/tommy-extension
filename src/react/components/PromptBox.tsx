@@ -4,7 +4,6 @@ import {callScript} from '../CallScript';
 import axios from 'axios'
 import {PageContext} from "./PageContext";
 import {FilteredDOM} from "../../chrome/contentScripts/filteredDOM";
-import OpenAI from 'openai';
 
 
 export default function PromptBox() {
@@ -66,44 +65,56 @@ export default function PromptBox() {
                 const threadID = await createThread(assistantID);
                 await addMessageToThread(assistantID, threadID, messaging);
 
-                console.log(await runAssistantOnThread(assistantID, threadID));
+                const response = await runAssistantOnThread(assistantID, threadID);
+                await handleAssistantResponse(assistantID, threadID);
             }
         })();
     }, [messaging]);
+
+    const handleAssistantResponse = async (assistantID: string, threadID: string) => {
+        const response = await runAssistantOnThread(assistantID, threadID);
+
+        if (response && response.data && response.data.actions) {
+            response.data.actions.forEach((actionItem: any) => {
+                // Assuming actionItem has properties like 'action' and 'args'
+                callScript(actionItem.action, actionItem.args);
+            });
+        }
+    };
 
     const createAssistant = async () => {
         const data = {
             model: "gpt-4-turbo-preview", // Replace with your desired model
             description: "TOMMY goal is to run functions based on the DOM of the page passed in, other than the DOM a prompt will be passed in. The goal is to run functions on the DOM based on the message. This can be opening a tab or clicking on a element and passing in that elements key into the function",
-            tools: [            {
+            tools: [{
                 type: 'function',
                 function: {
                     "name": "OpenTab",
                     "description": "Opens a new browser tab. If a URL is provided, the new tab will navigate to that URL. Otherwise, an empty tab is opened. This function is useful for dynamically opening web content based on user interactions or specific conditions within a web application.",
                     "parameters": {
-                      "type": "object",
-                      "properties": {
-                        "url": {
-                          "type": "string",
-                          "description": "The web address (URL) to open in the new tab. If omitted, an empty tab (about:blank) is opened instead."
-                        }
-                      },
-                      "required": []
+                        "type": "object",
+                        "properties": {
+                            "url": {
+                                "type": "string",
+                                "description": "The web address (URL) to open in the new tab. If omitted, an empty tab (about:blank) is opened instead."
+                            }
+                        },
+                        "required": []
                     }
-                  }
+                }
                 // Parameters for OpenTab...
             },
-        ],
+            ],
             // Add other configuration settings as needed
-            
+
         };
-    
+
         try {
             const response = await axios.post(`https://api.openai.com/v1/assistants`, data, {
                 headers: {
                     'Authorization': `Bearer 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`,
                     'Content-Type': 'application/json',
-                    'OpenAI-Beta' : 'assistants=v1',
+                    'OpenAI-Beta': 'assistants=v1',
 
                 }
             });
@@ -120,7 +131,7 @@ export default function PromptBox() {
                 headers: {
                     'Authorization': `Bearer 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`,
                     'Content-Type': 'application/json',
-                    'OpenAI-Beta' : 'assistants=v1',
+                    'OpenAI-Beta': 'assistants=v1',
 
                 }
             });
@@ -136,13 +147,13 @@ export default function PromptBox() {
             role: "user",
             content: JSON.stringify({filteredDOM, message, name})
         };
-    
+
         try {
             const response = await axios.post(`https://api.openai.com/v1/threads/${threadID}/messages`, data, {
                 headers: {
                     'Authorization': `Bearer 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`,
                     'Content-Type': 'application/json',
-                    'OpenAI-Beta' : 'assistants=v1'
+                    'OpenAI-Beta': 'assistants=v1'
                 }
             });
             console.log("Message Added:", response.data);
@@ -157,7 +168,7 @@ export default function PromptBox() {
                 headers: {
                     'Authorization': `Bearer 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`,
                     'Content-Type': 'application/json',
-                    'OpenAI-Beta' : 'assistants=v1',
+                    'OpenAI-Beta': 'assistants=v1',
                     'assistant_id': assistantID as string,
 
                 }
@@ -195,7 +206,7 @@ export default function PromptBox() {
                 headers: {
                     'Authorization': `Bearer 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`, // Make sure your accountID is correct
                     'Content-Type': 'application/json',
-                    'OpenAI-Beta' : 'assistants=v1',
+                    'OpenAI-Beta': 'assistants=v1',
 
                 }
             })
