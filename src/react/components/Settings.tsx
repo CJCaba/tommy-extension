@@ -20,9 +20,7 @@ const AccountPage = () => {
         };
 
         window.addEventListener('myExtensionResponse', handleResponse);
-
         callScript('getDataFromStorage', {key: 'name'});
-
         return () => {
             window.removeEventListener('myExtensionResponse', handleResponse);
         };
@@ -94,8 +92,8 @@ const DebugPage = () => {
     }
 
     return <>
-    <StyledButton onClick={openMic}>Microphone Access</StyledButton>
-    <StyledButton onClick={filter}>DOM Access</StyledButton>
+        <StyledButton onClick={openMic}>Microphone Access</StyledButton>
+        <StyledButton onClick={filter}>DOM Access</StyledButton>
     </>;
 };
 

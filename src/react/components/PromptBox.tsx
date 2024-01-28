@@ -14,23 +14,22 @@ export default function PromptBox() {
 
     const {isOpen} = useContext(PageContext);
 
-    useEffect(() => {
-        const handleResponse = (event: any) => {
-            const {detail} = event;
-            setName(detail.value || '');
-        };
+    const handleResponse = (event: any) => {
+        const {detail} = event;
+        if (detail.action === 'getDataFromStorage' && detail.status === 'success') {
+            setAccountID(detail.value || '');
+        } else {
+            handleResponse(event);
+        }
+    };
 
+    useEffect(() => {
         window.addEventListener('myExtensionResponse', handleResponse);
         callScript('getDataFromStorage', {key: 'name'});
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
     }, [isOpen, name]);
 
     useEffect(() => {
-        const handleResponse = (event: any) => {
-            const {detail} = event;
-            setAccountID(detail.value || '');
-        };
-
         window.addEventListener('myExtensionResponse', handleResponse);
         callScript('getDataFromStorage', {key: 'accountID'});
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
@@ -79,23 +78,21 @@ export default function PromptBox() {
 
         const data = {
             name: name,
-            message: messaging,
+            prompt: messaging,
             DOM: filteredDOM
         };
 
-        console.log(data);
-
-        axios.post(`https://api.openai.com/v1/engines/${engineID}/completions`,
-            {prompt: data, max_tokens: 10000},
+        const assistantID = "asst_FFgL6XWJvkusRlqwVpAruk7K";
+        axios.post(`https://api.openai.com/v1/assistants/${assistantID}/completions`,
+            data,
             {
                 headers: {
-                    'Authorization': `Bearer ${accountID}`,
-                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accountID}`, // Make sure your accountID is correct
+                    'Content-Type': 'application/json'
                 }
             })
             .then(response => {
                 console.log(response.data);
-                // Process the response from OpenAI
             })
             .catch(error => {
                 console.error("Error sending request to OpenAI:", error);
