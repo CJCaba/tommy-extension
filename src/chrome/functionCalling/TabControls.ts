@@ -13,19 +13,18 @@
  *
  *
  */
-export function OpenTab(url?:string){
+export function OpenTab(url?: string) {
     // Open a new empty tab. 'about:blank' opens an empty tab.
 
-    if (url)
-    {
+    if (url) {
         window.open(url);
-    }else{
+    } else {
         window.open('about:blank', '_blank');
     }
 };
 
-export function CloseCurrentTab(){
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+export function CloseCurrentTab() {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         // `tabs` will be an array with only one element: the active tab in the current window.
         var currentTab = tabs[0];
         if (currentTab && currentTab.id) {
@@ -36,7 +35,7 @@ export function CloseCurrentTab(){
 }
 
 // Function to delete a tab given a unique key
-export function deleteTargetTab(key) {
+export function deleteTargetTab(key: number) {
     if (key !== undefined) {
         chrome.tabs.remove(key, () => {
             if (chrome.runtime.lastError) {

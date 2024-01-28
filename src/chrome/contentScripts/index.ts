@@ -1,23 +1,8 @@
-// export * from './integrateIntoSite';
-import {CloseCurrentTab, OpenTab} from "../functionCalling/TabControls";
+import {embedReactApp} from './embedReactApp';
 
-export * from './filteredDOM';
+export * from './filteredDOM'
 
-// Function Calling - Utility Methods
-import {addDogImageToScreen, clickOnElement,  } from '../functionCalling';
+// Execute the Function for
+embedReactApp();
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    switch (request.action) {
-        case "addDogImage":
-            console.log("ADDING DOG IMAGE TO SCREEN!")
-            addDogImageToScreen(request.size, request.position);
-            break;
-        case "clickElement":
-            clickOnElement(request.selector);
-            break;
 
-        case"CloseCurrentTab":
-            CloseCurrentTab();
-        // ... other cases Such as IntegrateIntoSite & FilterDOM
-    }
-});

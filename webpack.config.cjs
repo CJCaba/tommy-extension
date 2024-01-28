@@ -18,19 +18,23 @@ module.exports = {
         publicPath: '',
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            template: './src/index.html',
-            inject: false
-        }),
         new CopyPlugin({
             patterns: [{
                 from: path.resolve('manifest.json'),
                 to: path.resolve('dist')
             }]
-        })
+        }),
     ],
     module: {
         rules: [
+            {
+                test: /\.(png|jpe?g|gif)$/i,
+                use: [
+                    {
+                        loader: 'file-loader',
+                    },
+                ],
+            },
             {
                 test: /.(ts|tsx)$/,
                 exclude: /node_modules/,

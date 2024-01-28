@@ -1,31 +1,47 @@
-import {CloseCurrentTab} from "../chrome/functionCalling/TabControls";
+import styled, {ThemeProvider} from 'styled-components';
+import React, {useState} from 'react';
+
+// Pages
+import Homepage from "./components/Homepage";
+import Settings from "./components/Settings";
+import {UserInfoContext} from './components/UserInfoContext';
+import { PageContext } from './components/PageContext';
+
+// Theme
+const theme = {
+    primary: "#1B3409",
+    secondary: "#EBF7E3",
+    text: "#000000",
+    accent: "#FFFFFF"
+};
 
 export default function App() {
-    const handleClick = () => {
-        // Example of passing additional arguments
-        callScript("addDogImage", {size: '150px', position: 'bottom-right'});
+    const [currentPage, setCurrentPage] = useState('home');
+    const [isOpen, setOpen] = useState(true)
+
+    // Input Information to API
+    const [name, setName] = useState('');
+    const [accountID, setAccountID] = useState('');
+    const [message, setMessage] = useState('');
+
+    const changePage = (page: string) => {
+        setCurrentPage(page);
     };
 
-    const CloseCurrentTab = () =>{
-      //testing opening a tab
-        console.log("Close Tab Called")
-        callScript("CloseCurrentTab", {url:"https://www.youtube.com"})
-    };
-
-    return <main>
-        <h1>Add a Dog Gif to Webpage</h1>
-        <button onClick={() => handleClick()}>Generate Dog Gif</button>
-        <button onClick={()=> CloseCurrentTab()}>close current Tab</button>
-    </main>
-};
+    return <AppContainer>
+        <ThemeProvider theme={theme}>
+            <UserInfoContext.Provider value={{name, accountID, message, setName, setAccountID, setMessage}}>
+                <PageContext.Provider value={{currentPage, changePage, setOpen, isOpen}}>
+                    {isOpen && (currentPage === 'home' ? <Homepage/> : <Settings/>)}
+                </PageContext.Provider>
+            </UserInfoContext.Provider>
+        </ThemeProvider>
+    </AppContainer>
+}
 
 
-export const callScript = (action: any, args = {}) => {
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id as number, {action, ...args});
-    });
-};
-
-// Lets Add a Function Calling Directory And Test with calling DOG Image.
-// Maybe try a wrapper appraoch for each function when calling ContentScripts?
-// So Instead of Querying and Sending a Message Here It can do it in the script?
+// DOM Element CSS Is Located in Chrome/ContentScripts/Embed.js
+const AppContainer = styled.div`
+    width: 100%;
+    height: 100%;
+`

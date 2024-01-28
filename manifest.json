@@ -3,12 +3,16 @@
   "name": "T.O.M.M.Y",
   "description": "Navigate your browser with voice",
   "version": "1.0.0",
-  "action": {
-    "default_popup": "index.html"
-  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "<all_urls>"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
-    "scripts": ["background.js"],
-    "persistent": true,
     "service_worker": "background.js"
   },
   "content_scripts": [
@@ -22,8 +26,15 @@
       ]
     }
   ],
-  "permissions": [
-    "tabs","<all_urls>",
-    "activeTab"
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "react.js",
+        "assets/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
   ]
 }
