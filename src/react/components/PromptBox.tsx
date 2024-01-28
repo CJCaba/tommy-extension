@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {callScript} from '../CallScript';
 import axios from 'axios'
+import {PageContext} from "./PageContext";
 
 export default function PromptBox() {
     const [message, setMessage] = useState('');
@@ -9,26 +10,33 @@ export default function PromptBox() {
     const [accountID, setAccountID] = useState('');
     const [filteredDOM, setFilteredDOM] = useState([]);
     const [capturing, setCapturing] = useState(false);
-    const [prevCapturing, setPrevCapturing] = useState(false);
+    const [prevCapturing, setPrevCapturing] = useState(false)
+
+    const {isOpen} = useContext(PageContext);
 
     useEffect(() => {
         const handleResponse = (event: any) => {
             const {detail} = event;
-            if (detail.action === 'getDataFromStorage' && detail.status === 'success') {
-                if (detail.key === 'name') {
-                    setName(detail.value || '');
-                } else if (detail.key === 'accountID') {
-                    setAccountID(detail.value || '');
-                }
-            }
+            setName(detail.value || '');
         };
 
         window.addEventListener('myExtensionResponse', handleResponse);
         callScript('getDataFromStorage', {key: 'name'});
-        callScript('getDataFromStorage', {key: 'accountID'});
-
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
-    }, []);
+    }, [name, accountID, isOpen]);
+
+
+    useEffect(() => {
+        const handleResponse = (event: any) => {
+            const {detail} = event;
+            setAccountID(detail.value || '');
+        };
+
+        window.addEventListener('myExtensionResponse', handleResponse);
+        callScript('getDataFromStorage', {key: 'accountID'});
+        return () => window.removeEventListener('myExtensionResponse', handleResponse);
+    }, [name, accountID, isOpen]);
+
 
     useEffect(() => {
         const handleSearchNodes = (event: any) => {
@@ -39,7 +47,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionSearchNodes', handleSearchNodes);
 
         return () => window.removeEventListener('myExtensionSearchNodes', handleSearchNodes);
-    }, []);
+    }, [filteredDOM, isOpen]);
 
     useEffect(() => {
         const handleSpeechData = (event: any) => {
@@ -50,9 +58,7 @@ export default function PromptBox() {
             if (newCapturing !== capturing) {
                 setPrevCapturing(capturing);
                 setCapturing(newCapturing);
-                if (!newCapturing && accountID && name) {
-                    sendRequestToOpenAI();
-                }
+                sendRequestToOpenAI();
             }
         };
 
