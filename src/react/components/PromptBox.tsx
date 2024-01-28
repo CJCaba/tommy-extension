@@ -83,7 +83,7 @@ export default function PromptBox() {
         };
 
         const assistantID = "asst_FFgL6XWJvkusRlqwVpAruk7K";
-        axios.post(`https://api.openai.com/v1/assistants/${assistantID}/completions`,
+        axios.post(`https://api.openai.com/v1/assistants/${assistantID}`,
             data,
             {
                 headers: {
