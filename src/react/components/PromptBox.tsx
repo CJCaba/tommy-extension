@@ -3,14 +3,14 @@ import styled from 'styled-components';
 import {callScript} from '../CallScript';
 import axios from 'axios'
 import {PageContext} from "./PageContext";
+import {FilteredDOM} from "../../chrome/contentScripts/filteredDOM";
 
 export default function PromptBox() {
-    const [message, setMessage] = useState('');
     const [name, setName] = useState('');
     const [accountID, setAccountID] = useState('');
     const [filteredDOM, setFilteredDOM] = useState([]);
+    const [messaging, setMessaging] = useState("");
     const [capturing, setCapturing] = useState(false);
-    const [prevCapturing, setPrevCapturing] = useState(false)
 
     const {isOpen} = useContext(PageContext);
 
@@ -51,23 +51,37 @@ export default function PromptBox() {
         const handleSpeechData = (event: any) => {
             const {finalTranscript, capturing: newCapturing} = event.detail;
 
-            setMessage(newCapturing && !prevCapturing ? '' : finalTranscript);
-
+            // Compare the previous and new capturing states
             if (newCapturing !== capturing) {
-                setPrevCapturing(capturing);
+                // Update states
                 setCapturing(newCapturing);
-                sendRequestToOpenAI();
+
+                // Send request only when capturing changes from true to false
+                if (!newCapturing) {
+                    sendRequestToOpenAI(finalTranscript);
+                    setMessaging(finalTranscript);
+                }
             }
         };
 
         window.addEventListener('myExtensionSpeechData', handleSpeechData);
-
         return () => window.removeEventListener('myExtensionSpeechData', handleSpeechData);
-    }, [capturing, isOpen]);
+    }, []);
 
-    const sendRequestToOpenAI = () => {
+
+    const sendRequestToOpenAI = (message: string) => {
         if (!accountID) {
             console.log("Account ID is null, not sending request.");
+            return;
+        }
+
+        if (!FilteredDOM) {
+            console.log("Filtered DOM is not Loaded");
+            return;
+        }
+
+        if (!message) {
+            console.log("No Message for GPT");
             return;
         }
 
@@ -98,7 +112,7 @@ export default function PromptBox() {
             });
     };
 
-    return <PromptContainer capturing={capturing} value={message} onChange={(e) => setMessage(e.target.value)}/>
+    return <PromptContainer capturing={capturing} value={messaging} onBlur={(e) => setMessaging(e.target.value)}/>
 }
 
 const PromptContainer = styled.textarea<{ capturing: boolean }>`
