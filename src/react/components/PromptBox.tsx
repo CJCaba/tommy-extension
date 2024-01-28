@@ -17,21 +17,26 @@ export default function PromptBox() {
     useEffect(() => {
         const handleResponse = (event: any) => {
             const {detail} = event;
-            if (detail.action === 'getDataFromStorage' && detail.status === 'success') {
-                if (detail.key === 'name') {
-                    setName(detail.value || '');
-                } else if (detail.key === 'accountID') {
-                    setAccountID(detail.value || '');
-                }
-            }
+            setName(detail.value || '');
         };
 
         window.addEventListener('myExtensionResponse', handleResponse);
         callScript('getDataFromStorage', {key: 'name'});
-        callScript('getDataFromStorage', {key: 'accountID'});
-
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
     }, [name, accountID, isOpen]);
+
+
+    useEffect(() => {
+        const handleResponse = (event: any) => {
+            const {detail} = event;
+            setAccountID(detail.value || '');
+        };
+
+        window.addEventListener('myExtensionResponse', handleResponse);
+        callScript('getDataFromStorage', {key: 'accountID'});
+        return () => window.removeEventListener('myExtensionResponse', handleResponse);
+    }, [name, accountID, isOpen]);
+
 
     useEffect(() => {
         const handleSearchNodes = (event: any) => {
