@@ -7,9 +7,11 @@ export default function PromptBox() {
     const [message, setMessage] = useState('');
     const [name, setName] = useState('');
     const [accountID, setAccountID] = useState('');
+    const [FilteredDOM, setFilteredDOM] = useState([])
 
     // This State Holds if the microphone is currently capturing your audio
     const [capturing, setCapturing] = useState(false);
+    const [prevCapturing, setPrevCapturing] = useState(false);
 
     // Retrieve Name and AccountID from Storage
     useEffect(() => {
@@ -39,14 +41,36 @@ export default function PromptBox() {
     useEffect(() => {
         const handleSpeechData = (event: any) => {
             const {finalTranscript, capturing} = event.detail;
-            setMessage(finalTranscript);
-            setCapturing(capturing);
+
+            if (capturing && !prevCapturing) {
+                // Reset message when transitioning from not capturing to capturing
+                setMessage('');
+            } else {
+                setMessage(finalTranscript);
+            }
+
+            setPrevCapturing(capturing); // Update the previous capturing state
+            setCapturing(capturing); // Update the capturing state
         };
 
         window.addEventListener('myExtensionSpeechData', handleSpeechData);
 
         return () => {
             window.removeEventListener('myExtensionSpeechData', handleSpeechData);
+        };
+    }, [prevCapturing]);
+
+    // Get Filtered DOM
+    useEffect(() => {
+        const handleSearchNodes = (event: any) => {
+            const {searchNodes} = event.detail;
+            setFilteredDOM(searchNodes);
+        };
+
+        window.addEventListener('myExtensionSearchNodes', handleSearchNodes);
+
+        return () => {
+            window.removeEventListener('myExtensionSearchNodes', handleSearchNodes);
         };
     }, []);
 
@@ -63,7 +87,7 @@ export default function PromptBox() {
         const data = {
             name: name,
             message: message,
-            DOM: null
+            DOM: FilteredDOM
         }
 
         console.log(data);
@@ -93,8 +117,11 @@ export default function PromptBox() {
     };
 
     useEffect(() => {
-        sendRequestToOpenAI();
-    }, [])
+        if (!capturing && prevCapturing) {
+            sendRequestToOpenAI();
+        }
+        setPrevCapturing(capturing);
+    }, [capturing, prevCapturing]);
 
     return <PromptContainer capturing={capturing} value={message} onChange={(e) => setMessage(e.target.value)}/>
 }
