@@ -4,6 +4,8 @@ import {callScript} from '../CallScript';
 import axios from 'axios'
 import {PageContext} from "./PageContext";
 import {FilteredDOM} from "../../chrome/contentScripts/filteredDOM";
+import OpenAI from 'openai';
+
 
 export default function PromptBox() {
     const [name, setName] = useState('');
@@ -58,10 +60,93 @@ export default function PromptBox() {
     }, [isOpen, capturing, messaging]);
 
     useEffect(() => {
-        if (messaging.length != 0) {
-            sendRequestToOpenAI();
+        (async () => {
+            if (messaging.length !== 0) {
+                const assistantID = await createAssistant();
+                const threadID = await createThread(assistantID);
+                await addMessageToThread(assistantID, threadID, "Please reply Hello");
+                await runAssistantOnThread(assistantID, threadID);
+            }
+        })();
+    }, [messaging]);
+
+    const createAssistant = async () => {
+        const data = {
+            model: "gpt-4-turbo-preview", // Replace with your desired model
+            // Add other configuration settings as needed
+            
+        };
+    
+        try {
+            const response = await axios.post(`https://api.openai.com/v1/assistants`, data, {
+                headers: {
+                    'Authorization': `Bearer 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`,
+                    'Content-Type': 'application/json',
+                    'OpenAI-Beta' : 'assistants=v1',
+
+                }
+            });
+            console.log("Assistant Created:", response.data);
+            return response.data.id; // Return the Assistant ID
+        } catch (error) {
+            console.error("Error creating assistant:", error);
         }
-    }, [messaging])
+    };
+
+    const createThread = async (assistantID: string) => {
+        try {
+            const response = await axios.post(`https://api.openai.com/v1/threads`, {}, {
+                headers: {
+                    'Authorization': `Bearer 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`,
+                    'Content-Type': 'application/json',
+                    'OpenAI-Beta' : 'assistants=v1',
+
+                }
+            });
+            console.log("Thread Created:", response.data);
+            return response.data.id; // Return the Thread ID
+        } catch (error) {
+            console.error("Error creating thread:", error);
+        }
+    };
+
+    const addMessageToThread = async (assistantID: string, threadID: string, message: string) => {
+        const data = {
+            type: "message",
+            role: "user",
+            content: message
+        };
+    
+        try {
+            const response = await axios.post(`https://api.openai.com/v1/threads/${threadID}/messages`, data, {
+                headers: {
+                    'Authorization': `Bearer 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`,
+                    'Content-Type': 'application/json',
+                    'OpenAI-Beta' : 'assistants=v1'
+                }
+            });
+            console.log("Message Added:", response.data);
+        } catch (error) {
+            console.error("Error adding message to thread:", error);
+        }
+    };
+
+    const runAssistantOnThread = async (assistantID: string, threadID: string) => {
+        try {
+            const response = await axios.get(`https://api.openai.com/v1/assistants/${assistantID}/threads/${threadID}/act`, {
+                headers: {
+                    'Authorization': `Bearer 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`,
+                    'Content-Type': 'application/json',
+                    'OpenAI-Beta' : 'assistants=v1',
+
+                }
+            });
+            console.log("Assistant Response:", response.data);
+            return response.data; // Return the response
+        } catch (error) {
+            console.error("Error running assistant on thread:", error);
+        }
+    };
 
     const sendRequestToOpenAI = () => {
         if (!accountID) {
@@ -87,8 +172,10 @@ export default function PromptBox() {
             data,
             {
                 headers: {
-                    'Authorization': `Bearer ${accountID}`, // Make sure your accountID is correct
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer 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`, // Make sure your accountID is correct
+                    'Content-Type': 'application/json',
+                    'OpenAI-Beta' : 'assistants=v1',
+
                 }
             })
             .then(response => {
