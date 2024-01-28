@@ -28,7 +28,7 @@ export default function PromptBox() {
         callScript('getDataFromStorage', {key: 'accountID'});
 
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
-    }, []);
+    }, [name, accountID]);
 
     useEffect(() => {
         const handleSearchNodes = (event: any) => {
@@ -39,7 +39,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionSearchNodes', handleSearchNodes);
 
         return () => window.removeEventListener('myExtensionSearchNodes', handleSearchNodes);
-    }, []);
+    }, [filteredDOM]);
 
     useEffect(() => {
         const handleSpeechData = (event: any) => {
@@ -50,9 +50,7 @@ export default function PromptBox() {
             if (newCapturing !== capturing) {
                 setPrevCapturing(capturing);
                 setCapturing(newCapturing);
-                if (!newCapturing && accountID && name) {
-                    sendRequestToOpenAI();
-                }
+                sendRequestToOpenAI();
             }
         };
 
