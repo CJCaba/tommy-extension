@@ -23,7 +23,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionResponse', handleResponse);
         callScript('getDataFromStorage', {key: 'name'});
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
-    }, [isOpen]);
+    }, [isOpen, name]);
 
     useEffect(() => {
         const handleResponse = (event: any) => {
@@ -34,7 +34,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionResponse', handleResponse);
         callScript('getDataFromStorage', {key: 'accountID'});
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
-    }, [isOpen]);
+    }, [isOpen, accountID]);
 
     useEffect(() => {
         const handleSearchNodes = (event: any) => {
@@ -45,42 +45,32 @@ export default function PromptBox() {
         window.addEventListener('myExtensionSearchNodes', handleSearchNodes);
 
         return () => window.removeEventListener('myExtensionSearchNodes', handleSearchNodes);
-    }, [isOpen]);
+    }, [isOpen, filteredDOM]);
 
     useEffect(() => {
         const handleSpeechData = (event: any) => {
             const {finalTranscript, capturing: newCapturing} = event.detail;
-
-            // Compare the previous and new capturing states
-            if (newCapturing !== capturing) {
-                // Update states
-                setCapturing(newCapturing);
-
-                // Send request only when capturing changes from true to false
-                if (!newCapturing) {
-                    sendRequestToOpenAI(finalTranscript);
-                    setMessaging(finalTranscript);
-                }
-            }
+            setCapturing(capturing);
+            setMessaging(finalTranscript);
         };
 
         window.addEventListener('myExtensionSpeechData', handleSpeechData);
         return () => window.removeEventListener('myExtensionSpeechData', handleSpeechData);
-    }, []);
+    }, [isOpen, capturing, messaging]);
 
+    useEffect(() => {
+        if (messaging.length != 0) {
+            sendRequestToOpenAI();
+        }
+    }, [messaging])
 
-    const sendRequestToOpenAI = (message: string) => {
+    const sendRequestToOpenAI = () => {
         if (!accountID) {
             console.log("Account ID is null, not sending request.");
             return;
         }
 
-        if (!FilteredDOM) {
-            console.log("Filtered DOM is not Loaded");
-            return;
-        }
-
-        if (!message) {
+        if (!messaging) {
             console.log("No Message for GPT");
             return;
         }
@@ -89,11 +79,12 @@ export default function PromptBox() {
 
         const data = {
             name: name,
-            message: message,
+            message: messaging,
             DOM: filteredDOM
         };
 
         console.log(data);
+        console.log(accountID);
 
         axios.post(`https://api.openai.com/v1/engines/${engineID}/completions`,
             {prompt: data, max_tokens: 150},
@@ -112,25 +103,25 @@ export default function PromptBox() {
             });
     };
 
-    return <PromptContainer capturing={capturing} value={messaging} onBlur={(e) => setMessaging(e.target.value)}/>
+    return <PromptContainer capturing={capturing} value={messaging} onChange={(e) => setMessaging(e.target.value)}/>
 }
 
 const PromptContainer = styled.textarea<{ capturing: boolean }>`
-    width: 80%;
-    border-radius: 10px;
-    flex: 0.45;
-    margin: 2rem;
-    background: ${props => props.theme.primary};
-    color: ${props => props.theme.accent};
-    overflow: auto;
-    resize: none;
-    text-overflow: ellipsis;
-    padding: 10px;
-    border: none;
-    line-height: 1.5;
+  width: 80%;
+  border-radius: 10px;
+  flex: 0.45;
+  margin: 2rem;
+  background: ${props => props.theme.primary};
+  color: ${props => props.theme.accent};
+  overflow: auto;
+  resize: none;
+  text-overflow: ellipsis;
+  padding: 10px;
+  border: none;
+  line-height: 1.5;
 
-    box-shadow: ${props => props.capturing ? '0px 0px 20px 5px rgba(0, 0, 0, 0.4)' : '0px 0px 10px 1px rgba(0, 0, 0, 0.2)'};
-    transition: box-shadow 0.3s ease-in-out;
+  box-shadow: ${props => props.capturing ? '0px 0px 20px 5px rgba(0, 0, 0, 0.4)' : '0px 0px 10px 1px rgba(0, 0, 0, 0.2)'};
+  transition: box-shadow 0.3s ease-in-out;
 `;
 
 
