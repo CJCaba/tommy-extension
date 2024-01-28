@@ -1,11 +1,9 @@
 import styled, {ThemeProvider} from 'styled-components';
 import React, {useEffect, useState} from 'react';
-import {callScript} from './CallScript'
 
 // Pages
 import Homepage from "./components/Homepage";
 import Settings from "./components/Settings";
-import {UserInfoContext} from './components/UserInfoContext';
 import {PageContext} from './components/PageContext';
 
 // Theme
@@ -18,21 +16,9 @@ const theme = {
 
 export default function App() {
     const [currentPage, setCurrentPage] = useState('home');
-    const [isOpen, setOpen] = useState(true)
+    const [isOpen, setOpen] = useState(false)
 
-    // Input Information to API
-    const [name, setName] = useState('');
-    const [accountID, setAccountID] = useState('');
-    const [message, setMessage] = useState('');
-
-    const changePage = (page: string) => {
-        setCurrentPage(page);
-    };
-
-    const handleClick = () => {
-        callScript("speechText", {});
-    };
-
+    const changePage = (page: string) => setCurrentPage(page);
 
     useEffect(() => {
         const reactAppDiv = document.getElementById('react-app');
@@ -44,15 +30,12 @@ export default function App() {
     return <>
         <AppContainer isOpen={isOpen}>
             <ThemeProvider theme={theme}>
-                <UserInfoContext.Provider value={{name, accountID, message, setName, setAccountID, setMessage}}>
-                    <PageContext.Provider value={{currentPage, changePage, setOpen, isOpen}}>
-                        <button onClick={handleClick}>click me to run FilteredDOM Method</button>
-                        {currentPage === 'home' ? <Homepage/> : <Settings/>}
-                    </PageContext.Provider>
-                </UserInfoContext.Provider>
+                <PageContext.Provider value={{currentPage, changePage, setOpen, isOpen}}>
+                    {currentPage === 'home' ? <Homepage/> : <Settings/>}
+                </PageContext.Provider>
             </ThemeProvider>
         </AppContainer>
-        {!isOpen && <ReopenButton onClick={() => setOpen(true)}>Open</ReopenButton>}
+        {!isOpen && <OpenButton onClick={() => setOpen(true)}/>}
     </>
 }
 
@@ -64,10 +47,14 @@ const AppContainer = styled.div<{ isOpen: boolean }>`
     display: ${props => props.isOpen ? 'block' : 'none'};
 
 `
-const ReopenButton = styled.button`
+const OpenButton = styled.button`
     position: fixed;
-    top: 10px;
-    right: 10px;
+    bottom: 1rem;
+    right: 1rem;
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 50%;
     z-index: 10000001;
     pointer-events: auto;
 `;

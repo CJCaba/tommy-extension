@@ -9,8 +9,9 @@ export default function Navigation(props: { setOpen: any }) {
     const {changePage, currentPage} = useContext(PageContext);
 
     return <NavigationContainer>
-        <StyledIcon as={MdClose} onClick={() => setOpen(false)}/>
-        <StyledIcon as={FiMenu} onClick={() => changePage(currentPage === "home" ? "settings" : "home")}/>
+        <StyledIcon as={MdClose} onClick={() => setOpen(false)} style={{marginLeft: "2rem"}}/>
+        <StyledIcon as={FiMenu} onClick={() => changePage(currentPage === "home" ? "settings" : "home")}
+                    style={{marginRight: "2rem"}}/>
     </NavigationContainer>
 
 }
@@ -21,12 +22,11 @@ const StyledIcon = styled.button`
     cursor: pointer;
 `;
 
-
 const NavigationContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
+    margin: 1rem;
     background: ${props => props.theme.secondary};
     width: 100%;
 `;

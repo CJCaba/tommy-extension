@@ -1,11 +1,32 @@
 import styled from "styled-components"
 import Navigation from "./Navigation";
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {PageContext} from "./PageContext";
-import {useUserInfo} from "./UserInfoContext";
+import {callScript} from "../CallScript";
 
 const AccountPage = () => {
-    const {name, setName} = useUserInfo();
+    const [name, setName] = useState('');
+
+    const handleUpdate = () => {
+        callScript('setDataToStorage', {key: 'name', value: name});
+    };
+
+    useEffect(() => {
+        const handleResponse = (event: any) => {
+            const {detail} = event;
+            if (detail.action === 'getDataFromStorage' && detail.status === 'success') {
+                setName(detail.value || '');
+            }
+        };
+
+        window.addEventListener('myExtensionResponse', handleResponse);
+
+        callScript('getDataFromStorage', {key: 'name'});
+
+        return () => {
+            window.removeEventListener('myExtensionResponse', handleResponse);
+        };
+    }, []);
 
     return <Container>
         <StyledLabel>
@@ -17,12 +38,33 @@ const AccountPage = () => {
                 placeholder="Name"
             />
         </StyledLabel>
-        <StyledButton>Update Account</StyledButton>
+        <StyledButton onClick={handleUpdate}>Update Account</StyledButton>
     </Container>
 };
 
 const OpenAIPage = () => {
-    const {accountID, setAccountID} = useUserInfo();
+    const [accountID, setAccountID] = useState('');
+
+    const handleUpdate = () => {
+        callScript('setDataToStorage', {key: 'accountID', value: accountID});
+    };
+
+    useEffect(() => {
+        const handleResponse = (event: any) => {
+            const {detail} = event;
+            if (detail.action === 'getDataFromStorage' && detail.status === 'success') {
+                setAccountID(detail.value || '');
+            }
+        };
+
+        window.addEventListener('myExtensionResponse', handleResponse);
+
+        callScript('getDataFromStorage', {key: 'accountID'});
+
+        return () => {
+            window.removeEventListener('myExtensionResponse', handleResponse);
+        };
+    }, []);
 
     return <Container>
         <StyledLabel>
@@ -34,18 +76,25 @@ const OpenAIPage = () => {
                 placeholder="Account ID"
             />
         </StyledLabel>
-        <StyledButton>Save Credentials</StyledButton>
+        <StyledButton onClick={handleUpdate}>Save Credentials</StyledButton>
     </Container>
 };
-
 
 const PermissionsPage = () => {
     return <p>Permissions settings go here.</p>;
 };
 
+const DebugPage = () => {
+    const openMic = () => {
+        callScript('speechText', {})
+    }
+
+    return <button onClick={openMic}>Microphone Access</button>;
+};
+
 export default function Settings() {
     const {setOpen} = useContext(PageContext);
-    const [currentPage, setCurrentPage] = useState('account'); // Changed from 'main' to 'account'
+    const [currentPage, setCurrentPage] = useState('account');
 
     const renderPage = () => {
         switch (currentPage) {
@@ -55,6 +104,8 @@ export default function Settings() {
                 return <OpenAIPage/>;
             case 'Permissions':
                 return <PermissionsPage/>;
+            case 'Debug':
+                return <DebugPage/>
             default:
                 return <AccountPage/>;
         }
@@ -68,9 +119,10 @@ export default function Settings() {
         </ContentContainer>
 
         <MenuOption onClick={() => setCurrentPage('account')}>User
-            Account</MenuOption> {/* Changed from 'main' to 'account' */}
+            Account</MenuOption>
         <MenuOption onClick={() => setCurrentPage('OpenAI')}>OpenAI</MenuOption>
         <MenuOption onClick={() => setCurrentPage('Permissions')}>Permissions</MenuOption>
+        <MenuOption onClick={() => setCurrentPage('Debug')}>Debug</MenuOption>
     </SettingsContainer>
 }
 
@@ -82,6 +134,7 @@ const SettingsContainer = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+    flex: 0.75;
 `;
 
 const MenuOption = styled.button`

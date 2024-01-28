@@ -2,7 +2,8 @@ import {clickOnElement} from './ClickOnElement';
 import {CloseCurrentTab, OpenTab} from './TabControls';
 import {embedReactApp} from './embedReactApp';
 import {FilteredDOM} from './filteredDOM';
-import {SpeechText} from  './speechText';
+import {SpeechText} from './speechText';
+import {GetDataFromStorage, SetDataToStorage} from './storage';
 
 window.addEventListener('myExtensionEvent', (e: any) => {
     chrome.runtime.sendMessage({
@@ -11,7 +12,6 @@ window.addEventListener('myExtensionEvent', (e: any) => {
         args: e.detail.args
     });
 });
-
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
@@ -30,6 +30,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case "speechText":
             SpeechText();
             break;
+        case "getDataFromStorage":
+            GetDataFromStorage(request.key, (result: any) => {
+                const event = new CustomEvent('myExtensionResponse', {
+                    detail: {action: 'getDataFromStorage', status: 'success', value: result}
+                });
+                window.dispatchEvent(event);
+            });
+            return true;
+        case "setDataToStorage":
+            SetDataToStorage(request.key, request.value, () => {
+                const event = new CustomEvent('myExtensionResponse', {
+                    detail: {action: 'setDataToStorage', status: 'success'}
+                });
+                window.dispatchEvent(event);
+            });
+            return true;
         default:
             break;
     }

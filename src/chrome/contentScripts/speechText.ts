@@ -1,5 +1,6 @@
-
 export function SpeechText() {
+    console.log("Start Speech Sequence...")
+
     const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
     const SpeechGrammarList =
@@ -26,7 +27,7 @@ export function SpeechText() {
     // Start obtaining input
     recognition.start();
 
-    recognition.onresult = function(event){
+    recognition.onresult = function (event) {
         // The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
         // The SpeechRecognitionResultList object contains SpeechRecognitionResult objects.
         // It has a getter so it can be accessed like an array
@@ -39,15 +40,15 @@ export function SpeechText() {
         console.log(text);
     }
 
-    recognition.onspeechend = function() {
+    recognition.onspeechend = function () {
         recognition.stop();
     }
 
-    recognition.onnomatch = function(event) {
+    recognition.onnomatch = function (event) {
 
     }
-      
-    recognition.onerror = function(event) {
+
+    recognition.onerror = function (event) {
 
     }
 }
