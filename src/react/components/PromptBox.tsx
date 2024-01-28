@@ -2,7 +2,6 @@ import React, {useContext, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {callScript} from '../CallScript';
 import axios from 'axios'
-import {PageContext} from "./PageContext";
 
 export default function PromptBox() {
     const [message, setMessage] = useState('');
@@ -11,8 +10,6 @@ export default function PromptBox() {
     const [filteredDOM, setFilteredDOM] = useState([]);
     const [capturing, setCapturing] = useState(false);
     const [prevCapturing, setPrevCapturing] = useState(false)
-
-    const {isOpen} = useContext(PageContext);
 
     useEffect(() => {
         const handleResponse = (event: any) => {
@@ -23,8 +20,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionResponse', handleResponse);
         callScript('getDataFromStorage', {key: 'name'});
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
-    }, [name, accountID, isOpen]);
-
+    }, []);
 
     useEffect(() => {
         const handleResponse = (event: any) => {
@@ -35,8 +31,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionResponse', handleResponse);
         callScript('getDataFromStorage', {key: 'accountID'});
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
-    }, [name, accountID, isOpen]);
-
+    }, []);
 
     useEffect(() => {
         const handleSearchNodes = (event: any) => {
@@ -47,7 +42,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionSearchNodes', handleSearchNodes);
 
         return () => window.removeEventListener('myExtensionSearchNodes', handleSearchNodes);
-    }, [filteredDOM, isOpen]);
+    }, []);
 
     useEffect(() => {
         const handleSpeechData = (event: any) => {
@@ -65,7 +60,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionSpeechData', handleSpeechData);
 
         return () => window.removeEventListener('myExtensionSpeechData', handleSpeechData);
-    }, [prevCapturing, capturing, accountID, name]);
+    }, []);
 
     const sendRequestToOpenAI = () => {
         if (!accountID) {
