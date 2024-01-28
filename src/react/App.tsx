@@ -1,5 +1,6 @@
 import styled, {ThemeProvider} from 'styled-components';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import {callScript} from './CallScript'
 
 // Pages
 import Homepage from "./components/Homepage";
@@ -28,26 +29,45 @@ export default function App() {
         setCurrentPage(page);
     };
 
-    const runFilteredDOM = () => {
-        chrome.runtime.sendMessage({action: "filterDOM"}, (response) => {
-        });
-    }
+    const handleClick = () => {
+        callScript("filterDOM", {});
+    };
 
-    return <AppContainer>
-        <ThemeProvider theme={theme}>
-            <UserInfoContext.Provider value={{name, accountID, message, setName, setAccountID, setMessage}}>
-                <PageContext.Provider value={{currentPage, changePage, setOpen, isOpen}}>
-                    <button onClick={runFilteredDOM}>click me to run FilteredDOM Method</button>
-                    {isOpen && (currentPage === 'home' ? <Homepage/> : <Settings/>)}
-                </PageContext.Provider>
-            </UserInfoContext.Provider>
-        </ThemeProvider>
-    </AppContainer>
+
+    useEffect(() => {
+        const reactAppDiv = document.getElementById('react-app');
+        if (reactAppDiv) {
+            reactAppDiv.style.pointerEvents = isOpen ? 'auto' : 'none';
+        }
+    }, [isOpen]);
+
+    return <>
+        <AppContainer isOpen={isOpen}>
+            <ThemeProvider theme={theme}>
+                <UserInfoContext.Provider value={{name, accountID, message, setName, setAccountID, setMessage}}>
+                    <PageContext.Provider value={{currentPage, changePage, setOpen, isOpen}}>
+                        <button onClick={handleClick}>click me to run FilteredDOM Method</button>
+                        {currentPage === 'home' ? <Homepage/> : <Settings/>}
+                    </PageContext.Provider>
+                </UserInfoContext.Provider>
+            </ThemeProvider>
+        </AppContainer>
+        {!isOpen && <ReopenButton onClick={() => setOpen(true)}>Open</ReopenButton>}
+    </>
 }
 
 
 // DOM Element CSS Is Located in Chrome/ContentScripts/Embed.js
-const AppContainer = styled.div`
-  width: 100%;
-  height: 100%;
+const AppContainer = styled.div<{ isOpen: boolean }>`
+    width: 100%;
+    height: 100%;
+    display: ${props => props.isOpen ? 'block' : 'none'};
+
 `
+const ReopenButton = styled.button`
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 10000001;
+    pointer-events: auto;
+`;

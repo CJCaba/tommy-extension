@@ -5,9 +5,9 @@
   "version": "1.0.0",
   "permissions": [
     "activeTab",
-    "scripting",
     "tabs",
-    "<all_urls>"
+    "<all_urls>",
+    "storage"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -21,8 +21,7 @@
         "<all_urls>"
       ],
       "js": [
-        "contentScripts.js",
-        "functionCalling.js"
+        "contentScripts.js"
       ]
     }
   ],
