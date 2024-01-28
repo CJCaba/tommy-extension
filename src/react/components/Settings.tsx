@@ -89,7 +89,7 @@ const DebugPage = () => {
         callScript('speechText', {})
     }
 
-    return <button onClick={openMic}>Microphone Access</button>;
+    return <StyledButton onClick={openMic}>Microphone Access</StyledButton>;
 };
 
 export default function Settings() {

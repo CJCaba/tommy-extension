@@ -7,6 +7,7 @@ import Homepage from "./components/Homepage";
 import Settings from "./components/Settings";
 import {PageContext} from './components/PageContext';
 import {callScript} from "./CallScript";
+import {SpeechText} from "../chrome/contentScripts/speechText";
 
 // Theme
 const theme = {
@@ -37,7 +38,11 @@ export default function App() {
                 </PageContext.Provider>
             </ThemeProvider>
         </AppContainer>
-        {!isOpen && <OpenButton onClick={() => setOpen(true)}>
+
+        {!isOpen && <OpenButton onClick={() => {
+            setOpen(true);
+            SpeechText();
+        }}>
         </OpenButton>
         }
     </>

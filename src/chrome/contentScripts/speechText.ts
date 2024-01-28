@@ -1,4 +1,3 @@
-
 export function SpeechText() {
     var recognition = new webkitSpeechRecognition() || new SpeechRecognition();
     recognition.continuous = true;
@@ -22,7 +21,7 @@ export function SpeechText() {
             }
         }
         const triggerPhrases = ["hi Tom", "hey Tom", "hey Tommy", "hi Tommy"];
-            const foundTrigger = triggerPhrases.some(phrase => interimTranscript.includes(phrase));
+        const foundTrigger = triggerPhrases.some(phrase => interimTranscript.includes(phrase));
         console.log(foundTrigger)
         // Check for the trigger phrase in the latest transcript.
         if (foundTrigger && !capturing) {
@@ -35,6 +34,8 @@ export function SpeechText() {
             // Update the last timestamp when speech was detected
             lastTimestamp = Date.now();
         }
+
+        dispatchSpeechData(finalTranscript, capturing);
     };
 
 // Check every half second to see if there's been a 2-second pause
@@ -58,4 +59,11 @@ export function SpeechText() {
 
     recognition.start();
 
+}
+
+function dispatchSpeechData(finalTranscript: string, capturing: any) {
+    const event = new CustomEvent('myExtensionSpeechData', {
+        detail: {finalTranscript, capturing}
+    });
+    window.dispatchEvent(event);
 }
