@@ -73,6 +73,22 @@ export default function PromptBox() {
     const createAssistant = async () => {
         const data = {
             model: "gpt-4-turbo-preview", // Replace with your desired model
+            functions: [
+                {
+                    name: "OpenTab",
+                    description: "Opens a new browser tab. If a URL is provided, the new tab will navigate to that URL. Otherwise, an empty tab is opened. This function is useful for dynamically opening web content based on user interactions or specific conditions within a web application.",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            url: {
+                                type: "string",
+                                description: "The web address (URL) to open in the new tab. If omitted, an empty tab (about:blank) is opened instead."
+                            }
+                        },
+                        required: []
+                    }
+                }
+            ],
             // Add other configuration settings as needed
             
         };
