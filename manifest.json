@@ -30,7 +30,7 @@
     {
       "resources": [
         "react.js",
-        "assets/*"
+        "images/*"
       ],
       "matches": [
         "<all_urls>"

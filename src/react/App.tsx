@@ -1,3 +1,4 @@
+// @ts-nocheck
 import styled, {ThemeProvider} from 'styled-components';
 import React, {useEffect, useState} from 'react';
 
@@ -5,6 +6,7 @@ import React, {useEffect, useState} from 'react';
 import Homepage from "./components/Homepage";
 import Settings from "./components/Settings";
 import {PageContext} from './components/PageContext';
+import {callScript} from "./CallScript";
 
 // Theme
 const theme = {
@@ -35,10 +37,11 @@ export default function App() {
                 </PageContext.Provider>
             </ThemeProvider>
         </AppContainer>
-        {!isOpen && <OpenButton onClick={() => setOpen(true)}/>}
+        {!isOpen && <OpenButton onClick={() => setOpen(true)}>
+        </OpenButton>
+        }
     </>
 }
-
 
 // DOM Element CSS Is Located in Chrome/ContentScripts/Embed.js
 const AppContainer = styled.div<{ isOpen: boolean }>`
@@ -47,7 +50,7 @@ const AppContainer = styled.div<{ isOpen: boolean }>`
     display: ${props => props.isOpen ? 'block' : 'none'};
 
 `
-const OpenButton = styled.button`
+const OpenButton = styled.div`
     position: fixed;
     bottom: 1rem;
     right: 1rem;

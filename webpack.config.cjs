@@ -14,7 +14,7 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js',
         clean: true,
-        publicPath: '',
+        publicPath: '/',
     },
     plugins: [
         new CopyPlugin({
@@ -31,6 +31,10 @@ module.exports = {
                 use: [
                     {
                         loader: 'file-loader',
+                        options: {
+                            name: '[name].[ext]',
+                            outputPath: 'images',
+                        },
                     },
                 ],
             },

@@ -51,6 +51,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
-
 // Embed React Application into Webpage
 embedReactApp();
