@@ -20,7 +20,7 @@ export function SpeechText() {
                 interimTranscript.toLowerCase();
             }
         }
-        const triggerPhrases = ["hi Tom", "hey Tom", "hey Tommy", "hi Tommy"];
+        const triggerPhrases = ["hi Tom", "hey Tom", "hey Tommy", "hi Tommy", "okay Tommy"];
         const foundTrigger = triggerPhrases.some(phrase => interimTranscript.includes(phrase));
         console.log(foundTrigger)
         // Check for the trigger phrase in the latest transcript.

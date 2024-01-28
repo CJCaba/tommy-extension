@@ -79,6 +79,6 @@ export function FilteredDOM() {
     observer.observe(document.body, {childList: true, subtree: true});
 
     // Initial traversal
-    traverseDOM(bodyNode);
+    traverseDOM(bodyNode, key);
     dispatchSearchNodes(); // Dispatch the initial SEARCH_NODES
 }
