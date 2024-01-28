@@ -2,7 +2,7 @@
 const TV = "tommy_value";
 
 // A list of currently important tags we want to be aware of
-const TAGS = ["P", "A", "H1", "H2", "H3", "TITLE", "SPAN", "BUTTON"];
+const TAGS = ["P", "A", "H1", "H2", "H3", "TITLE", "BUTTON"];
 
 // A list of all found important nodes transformed into Tommy_Nodes
 let SEARCH_NODES: Tommy_Node[] = [];
@@ -80,5 +80,6 @@ export function FilteredDOM() {
 
     // Initial traversal
     traverseDOM(bodyNode, key);
+    console.log(SEARCH_NODES);
     dispatchSearchNodes(); // Dispatch the initial SEARCH_NODES
 }
