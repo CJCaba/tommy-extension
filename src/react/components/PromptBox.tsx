@@ -112,9 +112,9 @@ export default function PromptBox() {
 
     const addMessageToThread = async (assistantID: string, threadID: string, message: string) => {
         const data = {
-            type: "message",
+            // type: "message",
             role: "user",
-            content: message
+            content: "hey tommy say hello"
         };
     
         try {
@@ -133,11 +133,12 @@ export default function PromptBox() {
 
     const runAssistantOnThread = async (assistantID: string, threadID: string) => {
         try {
-            const response = await axios.get(`https://api.openai.com/v1/assistants/${assistantID}/threads/${threadID}/act`, {
+            const response = await axios.get(`https://api.openai.com/v1/threads/${threadID}/runs`, {
                 headers: {
                     'Authorization': `Bearer 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`,
                     'Content-Type': 'application/json',
                     'OpenAI-Beta' : 'assistants=v1',
+                    'assistant_id': assistantID as string,
 
                 }
             });
