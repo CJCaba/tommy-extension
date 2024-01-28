@@ -64,8 +64,9 @@ export default function PromptBox() {
             if (messaging.length !== 0) {
                 const assistantID = await createAssistant();
                 const threadID = await createThread(assistantID);
-                await addMessageToThread(assistantID, threadID, "Please reply Hello");
-                await runAssistantOnThread(assistantID, threadID);
+                await addMessageToThread(assistantID, threadID, messaging);
+
+                console.log(await runAssistantOnThread(assistantID, threadID));
             }
         })();
     }, [messaging]);
@@ -73,22 +74,26 @@ export default function PromptBox() {
     const createAssistant = async () => {
         const data = {
             model: "gpt-4-turbo-preview", // Replace with your desired model
-            functions: [
-                {
-                    name: "OpenTab",
-                    description: "Opens a new browser tab. If a URL is provided, the new tab will navigate to that URL. Otherwise, an empty tab is opened. This function is useful for dynamically opening web content based on user interactions or specific conditions within a web application.",
-                    parameters: {
-                        type: "object",
-                        properties: {
-                            url: {
-                                type: "string",
-                                description: "The web address (URL) to open in the new tab. If omitted, an empty tab (about:blank) is opened instead."
-                            }
-                        },
-                        required: []
+            description: "TOMMY goal is to run functions based on the DOM of the page passed in, other than the DOM a prompt will be passed in. The goal is to run functions on the DOM based on the message. This can be opening a tab or clicking on a element and passing in that elements key into the function",
+            tools: [            {
+                type: 'function',
+                function: {
+                    "name": "OpenTab",
+                    "description": "Opens a new browser tab. If a URL is provided, the new tab will navigate to that URL. Otherwise, an empty tab is opened. This function is useful for dynamically opening web content based on user interactions or specific conditions within a web application.",
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "description": "The web address (URL) to open in the new tab. If omitted, an empty tab (about:blank) is opened instead."
+                        }
+                      },
+                      "required": []
                     }
-                }
-            ],
+                  }
+                // Parameters for OpenTab...
+            },
+        ],
             // Add other configuration settings as needed
             
         };
@@ -96,7 +101,7 @@ export default function PromptBox() {
         try {
             const response = await axios.post(`https://api.openai.com/v1/assistants`, data, {
                 headers: {
-                    'Authorization': `Bearer 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`,
+                    'Authorization': `Bearer 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`,
                     'Content-Type': 'application/json',
                     'OpenAI-Beta' : 'assistants=v1',
 
@@ -113,7 +118,7 @@ export default function PromptBox() {
         try {
             const response = await axios.post(`https://api.openai.com/v1/threads`, {}, {
                 headers: {
-                    'Authorization': `Bearer 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`,
+                    'Authorization': `Bearer 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`,
                     'Content-Type': 'application/json',
                     'OpenAI-Beta' : 'assistants=v1',
 
@@ -128,15 +133,14 @@ export default function PromptBox() {
 
     const addMessageToThread = async (assistantID: string, threadID: string, message: string) => {
         const data = {
-            // type: "message",
             role: "user",
-            content: "hey tommy say hello"
+            content: JSON.stringify({filteredDOM, message, name})
         };
     
         try {
             const response = await axios.post(`https://api.openai.com/v1/threads/${threadID}/messages`, data, {
                 headers: {
-                    'Authorization': `Bearer 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`,
+                    'Authorization': `Bearer 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`,
                     'Content-Type': 'application/json',
                     'OpenAI-Beta' : 'assistants=v1'
                 }
@@ -151,7 +155,7 @@ export default function PromptBox() {
         try {
             const response = await axios.get(`https://api.openai.com/v1/threads/${threadID}/runs`, {
                 headers: {
-                    'Authorization': `Bearer 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`,
+                    'Authorization': `Bearer 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`,
                     'Content-Type': 'application/json',
                     'OpenAI-Beta' : 'assistants=v1',
                     'assistant_id': assistantID as string,
@@ -189,7 +193,7 @@ export default function PromptBox() {
             data,
             {
                 headers: {
-                    'Authorization': `Bearer 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`, // Make sure your accountID is correct
+                    'Authorization': `Bearer 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`, // Make sure your accountID is correct
                     'Content-Type': 'application/json',
                     'OpenAI-Beta' : 'assistants=v1',
 
