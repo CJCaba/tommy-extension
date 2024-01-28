@@ -117,11 +117,18 @@ export default function PromptBox() {
     };
 
     useEffect(() => {
+        // Check the transition from capturing (true) to not capturing (false)
         if (!capturing && prevCapturing) {
             sendRequestToOpenAI();
         }
-        setPrevCapturing(capturing);
-    }, [capturing, prevCapturing]);
+
+        // Update the previous capturing state in the next render cycle
+        // This ensures that the check for capturing state change is evaluated first
+        const timeoutId = setTimeout(() => setPrevCapturing(capturing), 0);
+
+        return () => clearTimeout(timeoutId);
+    }, [capturing]); // Remove prevCapturing from dependencies
+
 
     return <PromptContainer capturing={capturing} value={message} onChange={(e) => setMessage(e.target.value)}/>
 }
