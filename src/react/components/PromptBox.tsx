@@ -43,9 +43,9 @@ export default function PromptBox() {
         };
 
         window.addEventListener('myExtensionSearchNodes', handleSearchNodes);
-
+        FilteredDOM();
         return () => window.removeEventListener('myExtensionSearchNodes', handleSearchNodes);
-    }, [isOpen, filteredDOM]);
+    }, []);
 
     useEffect(() => {
         const handleSpeechData = (event: any) => {
@@ -84,10 +84,9 @@ export default function PromptBox() {
         };
 
         console.log(data);
-        console.log(accountID);
 
         axios.post(`https://api.openai.com/v1/engines/${engineID}/completions`,
-            {prompt: data, max_tokens: 150},
+            {prompt: data, max_tokens: 10000},
             {
                 headers: {
                     'Authorization': `Bearer ${accountID}`,
@@ -107,21 +106,21 @@ export default function PromptBox() {
 }
 
 const PromptContainer = styled.textarea<{ capturing: boolean }>`
-  width: 80%;
-  border-radius: 10px;
-  flex: 0.45;
-  margin: 2rem;
-  background: ${props => props.theme.primary};
-  color: ${props => props.theme.accent};
-  overflow: auto;
-  resize: none;
-  text-overflow: ellipsis;
-  padding: 10px;
-  border: none;
-  line-height: 1.5;
+    width: 80%;
+    border-radius: 10px;
+    flex: 0.45;
+    margin: 2rem;
+    background: ${props => props.theme.primary};
+    color: ${props => props.theme.accent};
+    overflow: auto;
+    resize: none;
+    text-overflow: ellipsis;
+    padding: 10px;
+    border: none;
+    line-height: 1.5;
 
-  box-shadow: ${props => props.capturing ? '0px 0px 20px 5px rgba(0, 0, 0, 0.4)' : '0px 0px 10px 1px rgba(0, 0, 0, 0.2)'};
-  transition: box-shadow 0.3s ease-in-out;
+    box-shadow: ${props => props.capturing ? '0px 0px 20px 5px rgba(0, 0, 0, 0.4)' : '0px 0px 10px 1px rgba(0, 0, 0, 0.2)'};
+    transition: box-shadow 0.3s ease-in-out;
 `;
 
 
