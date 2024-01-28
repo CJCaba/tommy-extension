@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {callScript} from '../CallScript';
 import axios from 'axios'
+import {PageContext} from "./PageContext";
 
 export default function PromptBox() {
     const [message, setMessage] = useState('');
@@ -9,7 +10,9 @@ export default function PromptBox() {
     const [accountID, setAccountID] = useState('');
     const [filteredDOM, setFilteredDOM] = useState([]);
     const [capturing, setCapturing] = useState(false);
-    const [prevCapturing, setPrevCapturing] = useState(false);
+    const [prevCapturing, setPrevCapturing] = useState(false)
+
+    const {isOpen} = useContext(PageContext);
 
     useEffect(() => {
         const handleResponse = (event: any) => {
@@ -28,7 +31,7 @@ export default function PromptBox() {
         callScript('getDataFromStorage', {key: 'accountID'});
 
         return () => window.removeEventListener('myExtensionResponse', handleResponse);
-    }, [name, accountID]);
+    }, [name, accountID, isOpen]);
 
     useEffect(() => {
         const handleSearchNodes = (event: any) => {
@@ -39,7 +42,7 @@ export default function PromptBox() {
         window.addEventListener('myExtensionSearchNodes', handleSearchNodes);
 
         return () => window.removeEventListener('myExtensionSearchNodes', handleSearchNodes);
-    }, [filteredDOM]);
+    }, [filteredDOM, isOpen]);
 
     useEffect(() => {
         const handleSpeechData = (event: any) => {
